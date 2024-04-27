@@ -2,6 +2,7 @@ package org.usvm.machine
 
 import org.jacodb.api.JcMethod
 import org.jacodb.api.cfg.JcBlockGraph
+import org.jacodb.api.cfg.JcGraph
 import org.jacodb.api.cfg.JcInst
 import org.jacodb.api.cfg.JcThrowInst
 import org.jacodb.api.ext.cfg.callExpr
@@ -9,7 +10,7 @@ import org.usvm.statistics.BlockGraph
 
 class JcBlockGraph : BlockGraph<JcBlock, JcInst> {
     private val basicBlocks = mutableListOf<JcBlock>()
-    private val methods = mutableSetOf<JcMethod>()
+    private val methodsCache = mutableMapOf<JcMethod, JcGraph>()
 
     private val predecessorMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
     private val successorMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
@@ -24,21 +25,21 @@ class JcBlockGraph : BlockGraph<JcBlock, JcInst> {
             ?: throw IllegalArgumentException("$stmt does not belong to any block")
 
     fun addNewMethod(method: JcMethod) {
-        if (method !in methods) {
-            methods.add(method)
-            cutBlockGraph(method.flowGraph().blockGraph())
+        if (method !in methodsCache) {
+            val flowGraph = method.flowGraph()
+            methodsCache[method] = flowGraph
+            cutBlockGraph(flowGraph.blockGraph())
         }
     }
 
-    fun addNewMethodCall(stmt: JcInst, entryPoint: JcInst) {
+    fun addNewMethodCall(callSite: JcInst, returnSite: JcInst, entryPoint: JcInst) {
         val method = entryPoint.location.method
         addNewMethod(method)
-        calleesMap.getOrPut(blockOf(stmt), ::mutableSetOf) += blockOf(entryPoint)
-        callersMap.getOrPut(blockOf(entryPoint), ::mutableSetOf) += blockOf(stmt)
-        val returnTo = stmt.location.method.flowGraph().next(stmt)
-        with(method.flowGraph()) {
-            exits.forEach {
-                returnMap.getOrPut(blockOf(it), ::mutableSetOf) += blockOf(returnTo)
+        calleesMap.getOrPut(blockOf(callSite), ::mutableSetOf) += blockOf(entryPoint)
+        callersMap.getOrPut(blockOf(entryPoint), ::mutableSetOf) += blockOf(callSite)
+        methodsCache[method]?.let {
+            it.exits.forEach {
+                returnMap.getOrPut(blockOf(it), ::mutableSetOf) += blockOf(returnSite)
             }
         }
     }

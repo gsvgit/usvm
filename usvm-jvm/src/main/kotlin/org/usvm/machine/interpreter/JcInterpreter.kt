@@ -302,7 +302,7 @@ class JcInterpreter(
                 scope.doWithState {
                     addNewMethodCall(stmt, entryPoint)
                 }
-                blockGraph.addNewMethodCall(stmt.originalInst(), entryPoint)
+                blockGraph.addNewMethodCall(stmt.originalInst(), stmt.nextStmt, entryPoint)
             }
 
             is JcVirtualMethodCallInst -> {
