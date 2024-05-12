@@ -7,6 +7,7 @@ import org.jacodb.api.cfg.JcInst
 import org.jacodb.api.cfg.JcThrowInst
 import org.jacodb.api.ext.cfg.callExpr
 import org.usvm.statistics.BlockGraph
+import org.usvm.util.originalInst
 
 class JcBlockGraph : BlockGraph<JcBlock, JcInst> {
     private val basicBlocks = mutableListOf<JcBlock>()
@@ -20,9 +21,16 @@ class JcBlockGraph : BlockGraph<JcBlock, JcInst> {
     private val catchersMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
     private val throwersMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
 
-    private fun MutableList<JcBlock>.blockOf(stmt: JcInst): JcBlock =
-        find { it.contains(stmt) }
+    private fun MutableList<JcBlock>.blockOf(stmt: JcInst): JcBlock {
+        // workaround stepping through instructions
+        val targetStmt = when (stmt) {
+            is JcMethodEntrypointInst, is JcConcreteMethodCallInst -> stmt.originalInst()
+            else -> stmt
+        }
+
+        return find { it.contains(targetStmt) }
             ?: throw IllegalArgumentException("$stmt does not belong to any block")
+    }
 
     fun addNewMethod(method: JcMethod) {
         if (method !in methodsCache) {
