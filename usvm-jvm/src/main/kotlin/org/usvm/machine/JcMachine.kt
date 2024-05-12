@@ -101,6 +101,7 @@ class JcMachine(
             initialStates,
             options,
             applicationGraph,
+            blockGraph,
             timeStatistics,
             { coverageStatistics },
             { transparentCfgStatistics },
