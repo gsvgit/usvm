@@ -20,6 +20,7 @@ include("usvm-python:usvm-python-runner")
 findProject(":usvm-python:usvm-python-runner")?.name = "usvm-python-runner"
 include("usvm-python:usvm-python-commons")
 findProject(":usvm-python:usvm-python-commons")?.name = "usvm-python-commons"
+include("usvm-ml-gameserver")
 
 pluginManagement {
     resolutionStrategy {
