@@ -33,8 +33,8 @@ class GnnPathSelector<Statement, Method, State, Block>(
 
     override fun peek(): State {
         totalSteps++
-        if (totalSteps == 1) {
-            return statesMap.keys.first().also { lastPeekedState = it }
+        if (statesMap.size == 1) {
+            return statesMap.keys.single().also { lastPeekedState = it }
         }
         val wrappers = statesMap.values.toList()
         val vertices = wrappers.flatMap { it.history.keys }
