@@ -34,7 +34,7 @@ private fun <Method, Statement, Target, State, Block> createPathSelector(
     initialStates: List<State>,
     options: UMachineOptions,
     applicationGraph: ApplicationGraph<Method, Statement>,
-    blockGraph: BlockGraph<Block, Statement>,
+    blockGraph: BlockGraph<Method, Block, Statement>,
     coverageStatisticsFactory: () -> CoverageStatistics<Method, Statement, State>? = { null },
     cfgStatisticsFactory: () -> CfgStatistics<Method, Statement>? = { null },
     callGraphStatisticsFactory: () -> CallGraphStatistics<Method>? = { null },
@@ -156,21 +156,23 @@ private fun <Method, Statement, Target, State, Block> createPathSelector(
 
 fun <Method, Statement, State, Block> createGnnPathSelector(
     coverageStatistics: CoverageStatistics<Method, Statement, State>,
-    blockGraph: BlockGraph<Block, Statement>
+    blockGraph: BlockGraph<Method, Block, Statement>,
 ): UPathSelector<State> where State : UState<*, Method, Statement, *, *, State>,
                               Block : BasicBlock {
     coverageStatistics.addOnCoveredObserver { _, _, statement ->
         blockGraph.blockOf(statement).coveredByTest = true
     }
 
-    return GnnPathSelector(blockGraph)
+    val isInCoverageZone = { block: Block -> blockGraph.methodOf(block) in coverageStatistics.coverageZone }
+
+    return GnnPathSelector(blockGraph, isInCoverageZone)
 }
 
 fun <Method, Statement, Target, State, Block> createPathSelector(
     initialState: State,
     options: UMachineOptions,
     applicationGraph: ApplicationGraph<Method, Statement>,
-    blockGraph: BlockGraph<Block, Statement>,
+    blockGraph: BlockGraph<Method, Block, Statement>,
     coverageStatisticsFactory: () -> CoverageStatistics<Method, Statement, State>? = { null },
     cfgStatisticsFactory: () -> CfgStatistics<Method, Statement>? = { null },
     callGraphStatisticsFactory: () -> CallGraphStatistics<Method>? = { null },
@@ -192,7 +194,7 @@ fun <Method, Statement, Target, State, Block> createPathSelector(
     initialStates: Map<Method, State>,
     options: UMachineOptions,
     applicationGraph: ApplicationGraph<Method, Statement>,
-    blockGraph: BlockGraph<Block, Statement>,
+    blockGraph: BlockGraph<Method, Block, Statement>,
     timeStatistics: TimeStatistics<Method, State>,
     coverageStatisticsFactory: () -> CoverageStatistics<Method, Statement, State>? = { null },
     cfgStatisticsFactory: () -> CfgStatistics<Method, Statement>? = { null },

@@ -9,8 +9,8 @@ import org.jacodb.api.ext.cfg.callExpr
 import org.usvm.statistics.BlockGraph
 import org.usvm.util.originalInst
 
-class JcBlockGraph : BlockGraph<JcBlock, JcInst> {
-    private val basicBlocks = mutableListOf<JcBlock>()
+class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
+    private val basicBlocks = mutableSetOf<JcBlock>()
     private val methodsCache = mutableMapOf<JcMethod, JcGraph>()
 
     private val predecessorMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
@@ -21,7 +21,7 @@ class JcBlockGraph : BlockGraph<JcBlock, JcInst> {
     private val catchersMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
     private val throwersMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
 
-    private fun MutableList<JcBlock>.blockOf(stmt: JcInst): JcBlock {
+    private fun Set<JcBlock>.blockOf(stmt: JcInst): JcBlock {
         // workaround stepping through instructions
         val targetStmt = when (stmt) {
             is JcMethodEntrypointInst, is JcConcreteMethodCallInst -> stmt.originalInst()
@@ -71,7 +71,7 @@ class JcBlockGraph : BlockGraph<JcBlock, JcInst> {
 
     private fun cutBlockGraph(blockGraph: JcBlockGraph) {
         val blocks = blockGraph.iterator()
-        val newBlocks = mutableListOf<JcBlock>()
+        val newBlocks = mutableSetOf<JcBlock>()
         blocks.forEach { block ->
             val stmts = blockGraph.instructions(block)
             val currentBlockStmts = mutableListOf<JcInst>()
@@ -115,6 +115,9 @@ class JcBlockGraph : BlockGraph<JcBlock, JcInst> {
 
     override fun returnOf(node: JcBlock): Sequence<JcBlock> =
         returnMap.getOrDefault(node, emptySet()).asSequence()
+
+    override fun methodOf(block: JcBlock): JcMethod =
+        block.method
 
     override fun blockOf(inst: JcInst): JcBlock =
         basicBlocks.blockOf(inst)

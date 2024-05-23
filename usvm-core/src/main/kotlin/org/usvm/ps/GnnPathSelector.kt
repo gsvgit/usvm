@@ -18,8 +18,9 @@ private data class StateHistoryElement(
 )
 
 class GnnPathSelector<Statement, Method, State, Block>(
-    val blockGraph: BlockGraph<Block, Statement>
-) : UPathSelector<State> where
+    private val blockGraph: BlockGraph<Method, Block, Statement>,
+    private val isInCoverageZone: (Block) -> Boolean
+    ) : UPathSelector<State> where
       State : UState<*, Method, Statement, *, *, State>, Block : BasicBlock {
 
     private val statesMap = mutableMapOf<State, StateWrapper>()
@@ -178,10 +179,11 @@ class GnnPathSelector<Statement, Method, State, Block>(
                 .maxBy { it.second }.first
         }
 
-        private fun tensorFromBasicBlocks(vertices: List<BasicBlock>, vertexIds: MutableMap<Int, Int>): OnnxTensor {
+        private fun tensorFromBasicBlocks(vertices: List<Block>, vertexIds: MutableMap<Int, Int>): OnnxTensor {
             val numOfVertexAttributes = 7
             val verticesArray = vertices.flatMapIndexed { i, vertex ->
                 vertexIds[vertex.id] = i
+                vertex.inCoverageZone = isInCoverageZone(vertex)
                 listOf(
                     vertex.inCoverageZone.toFloat(),
                     vertex.basicBlockSize.toFloat(),

@@ -21,7 +21,7 @@ data class JcBlock(
     override val id = currentId++
     override var visitedByState = false
     override var touchedByState = false
-    override val inCoverageZone = true
+    override var inCoverageZone = false
     override var coveredByTest = false
 
     fun contains(inst: JcInst): Boolean {

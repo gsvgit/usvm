@@ -2,7 +2,7 @@ package org.usvm.statistics
 
 interface BasicBlock {
     val id: Int
-    val inCoverageZone: Boolean
+    var inCoverageZone: Boolean
     val basicBlockSize: Int
     var coveredByTest: Boolean
     var visitedByState: Boolean
