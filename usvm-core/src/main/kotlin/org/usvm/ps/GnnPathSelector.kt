@@ -37,8 +37,8 @@ class GnnPathSelector<Statement, Method, State, Block>(
         if (statesMap.size == 1) {
             return statesMap.keys.single().also { lastPeekedState = it }
         }
-        val wrappers = statesMap.values.toList()
-        val vertices = blockGraph.blocks.toList()
+        val wrappers = statesMap.values
+        val vertices = blockGraph.blocks
         val predictedId = oracle.predictState(vertices, wrappers)
 
         return checkNotNull(statesMap.keys.find { it.id == predictedId }).also { lastPeekedState = it }
@@ -131,7 +131,7 @@ class GnnPathSelector<Statement, Method, State, Block>(
         private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
         private val session: OrtSession = env.createSession(pathToONNX)
 
-        fun predictState(vertices: List<Block>, stateWrappers: List<StateWrapper>): StateId {
+        fun predictState(vertices: Collection<Block>, stateWrappers: Collection<StateWrapper>): StateId {
             val stateIds = mutableMapOf<StateId, Int>()
             val input = generateInput(vertices, stateWrappers, stateIds)
             val output = session.run(input)
@@ -143,8 +143,8 @@ class GnnPathSelector<Statement, Method, State, Block>(
         }
 
         private fun generateInput(
-            vertices: List<Block>,
-            stateWrappers: List<StateWrapper>,
+            vertices: Collection<Block>,
+            stateWrappers: Collection<StateWrapper>,
             stateIds: MutableMap<StateId, Int>
         ): Map<String, OnnxTensor> {
             val vertexIds = mutableMapOf<Int, Int>()
@@ -179,7 +179,7 @@ class GnnPathSelector<Statement, Method, State, Block>(
                 .maxBy { it.second }.first
         }
 
-        private fun tensorFromBasicBlocks(vertices: List<Block>, vertexIds: MutableMap<Int, Int>): OnnxTensor {
+        private fun tensorFromBasicBlocks(vertices: Collection<Block>, vertexIds: MutableMap<Int, Int>): OnnxTensor {
             val numOfVertexAttributes = 7
             val verticesArray = vertices.flatMapIndexed { i, vertex ->
                 vertexIds[vertex.id] = i
@@ -198,7 +198,7 @@ class GnnPathSelector<Statement, Method, State, Block>(
             return createFloatTensor(verticesArray, vertices.size, numOfVertexAttributes)
         }
 
-        private fun tensorFromStates(states: List<StateWrapper>, stateIds: MutableMap<StateId, Int>): OnnxTensor {
+        private fun tensorFromStates(states: Collection<StateWrapper>, stateIds: MutableMap<StateId, Int>): OnnxTensor {
             val numOfStateAttributes = 7
             val statesArray = states.flatMapIndexed { i, state ->
                 stateIds[state.id] = i
@@ -217,7 +217,7 @@ class GnnPathSelector<Statement, Method, State, Block>(
         }
 
         private fun tensorFromVertexEdges(
-            blocks: List<Block>,
+            blocks: Collection<Block>,
             vertexIds: MutableMap<Int, Int>
         ): Pair<OnnxTensor, OnnxTensor> {
             val vertexFrom = mutableListOf<Long>()
@@ -242,7 +242,7 @@ class GnnPathSelector<Statement, Method, State, Block>(
         }
 
         private fun tensorFromStateEdges(
-            states: List<StateWrapper>,
+            states: Collection<StateWrapper>,
             stateIds: MutableMap<StateId, Int>,
             vertexIds: MutableMap<Int, Int>
         ): Triple<OnnxTensor, OnnxTensor, OnnxTensor> {
@@ -284,7 +284,7 @@ class GnnPathSelector<Statement, Method, State, Block>(
         }
 
         private fun tensorFromStatePositions(
-            states: List<StateWrapper>,
+            states: Collection<StateWrapper>,
             stateIds: MutableMap<StateId, Int>,
             vertexIds: MutableMap<Int, Int>
         ): OnnxTensor {
