@@ -38,7 +38,7 @@ class GnnPathSelector<Statement, Method, State, Block>(
             return statesMap.keys.single().also { lastPeekedState = it }
         }
         val wrappers = statesMap.values.toList()
-        val vertices = wrappers.flatMap { it.history.keys }
+        val vertices = blockGraph.blocks.toList()
         val predictedId = oracle.predictState(vertices, wrappers)
 
         return checkNotNull(statesMap.keys.find { it.id == predictedId }).also { lastPeekedState = it }

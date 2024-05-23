@@ -11,6 +11,9 @@ import org.usvm.util.originalInst
 
 class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
     private val basicBlocks = mutableSetOf<JcBlock>()
+    override val blocks: Set<JcBlock>
+        get() = basicBlocks.toSet()
+
     private val methodsCache = mutableMapOf<JcMethod, JcGraph>()
 
     private val predecessorMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
