@@ -46,6 +46,10 @@ class GnnPathSelector<Statement, Method, State, Block>(
 
     override fun remove(state: State) {
         statesMap.remove(state)?.let { wrapper ->
+            // remove parent edge
+            val parent = statesMap.values.find { wrapper in it.children }
+            parent?.children?.remove(wrapper)
+
             state.pathNode += state.currentStatement
             wrapper.updateBlock()
             wrapper.children.clear()
