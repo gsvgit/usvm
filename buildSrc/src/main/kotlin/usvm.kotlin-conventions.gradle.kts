@@ -23,7 +23,6 @@ dependencies {
     implementation(Libs.kotlin_logging)
     implementation(Libs.kotlinx_coroutines_core)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}")
-    implementation("com.microsoft.onnxruntime:onnxruntime:${Versions.onnxruntime}")
 
     testImplementation(kotlin("test"))
 }

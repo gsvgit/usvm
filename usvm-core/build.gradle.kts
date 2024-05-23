@@ -11,6 +11,10 @@ dependencies {
     testImplementation(Libs.mockk)
     testImplementation(Libs.junit_jupiter_params)
     testImplementation(Libs.ksmt_yices)
+
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:${Versions.collections}")
+    implementation("com.microsoft.onnxruntime:onnxruntime:${Versions.onnxruntime}")
+
 }
 
 publishing {
