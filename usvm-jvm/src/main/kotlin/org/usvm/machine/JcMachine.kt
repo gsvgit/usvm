@@ -47,12 +47,13 @@ class JcMachine(
     private val interpreterObserver: JcInterpreterObserver? = null,
 ) : UMachine<JcState>() {
     private val applicationGraph = JcApplicationGraph(cp)
+    private val blockGraph = JcBlockGraph()
 
     private val typeSystem = JcTypeSystem(cp, options.typeOperationsTimeout)
     private val components = JcComponents(typeSystem, options)
     private val ctx = JcContext(cp, components)
 
-    private val interpreter = JcInterpreter(ctx, applicationGraph, jcMachineOptions, interpreterObserver)
+    private val interpreter = JcInterpreter(ctx, applicationGraph, blockGraph, jcMachineOptions, interpreterObserver)
 
     private val cfgStatistics = CfgStatisticsImpl(applicationGraph)
 
@@ -100,6 +101,7 @@ class JcMachine(
             initialStates,
             options,
             applicationGraph,
+            blockGraph,
             timeStatistics,
             { coverageStatistics },
             { transparentCfgStatistics },
