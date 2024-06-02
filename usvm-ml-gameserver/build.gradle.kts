@@ -2,12 +2,19 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("usvm.kotlin-conventions")
+    id("io.ktor.plugin") version Versions.ktor_version
     kotlin("plugin.serialization") version Versions.kotlinVersion
     application
 }
 
 application {
     mainClass.set("org.usvm.MainKt")
+}
+
+ktor {
+    fatJar {
+        archiveFileName.set("app.jar")
+    }
 }
 
 repositories {
@@ -31,9 +38,9 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:${Versions.ktor_version}")
     implementation("io.ktor:ktor-server-websockets:${Versions.ktor_version}")
     implementation("io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor_version}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinxSerialization}")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-cli:${Versions.kotlinxCLI}")
     implementation("org.slf4j:slf4j-simple:${Versions.samplesSl4j}")
 
     testImplementation(kotlin("test"))
