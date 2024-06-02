@@ -7,6 +7,8 @@ object Versions {
     const val ksmt = "0.5.21"
     const val collections = "0.3.5"
     const val coroutines = "1.6.4"
+    const val kotlinxSerialization = "1.6.3"
+    const val kotlinxCLI = "0.3.6"
 
     const val jacodbPackage = "com.github.UnitTestBot.jacodb"
     const val jacodb = "890624770b" // jacodb neo branch
