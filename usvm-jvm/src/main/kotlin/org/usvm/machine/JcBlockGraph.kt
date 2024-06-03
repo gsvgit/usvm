@@ -1,11 +1,11 @@
 package org.usvm.machine
 
-import org.jacodb.api.JcMethod
-import org.jacodb.api.cfg.JcBlockGraph
-import org.jacodb.api.cfg.JcGraph
-import org.jacodb.api.cfg.JcInst
-import org.jacodb.api.cfg.JcThrowInst
-import org.jacodb.api.ext.cfg.callExpr
+import org.jacodb.api.jvm.JcMethod
+import org.jacodb.api.jvm.cfg.JcBlockGraph
+import org.jacodb.api.jvm.cfg.JcGraph
+import org.jacodb.api.jvm.cfg.JcInst
+import org.jacodb.api.jvm.cfg.JcThrowInst
+import org.jacodb.api.jvm.ext.cfg.callExpr
 import org.usvm.statistics.BlockGraph
 import org.usvm.util.originalInst
 

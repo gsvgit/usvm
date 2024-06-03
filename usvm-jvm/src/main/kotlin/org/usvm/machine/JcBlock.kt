@@ -1,8 +1,8 @@
 package org.usvm.machine
 
-import org.jacodb.api.JcMethod
-import org.jacodb.api.cfg.JcInst
-import org.jacodb.api.cfg.JcInstRef
+import org.jacodb.api.jvm.JcMethod
+import org.jacodb.api.jvm.cfg.JcInst
+import org.jacodb.api.jvm.cfg.JcInstRef
 import org.usvm.statistics.BasicBlock
 
 data class JcBlock(
