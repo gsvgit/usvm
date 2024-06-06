@@ -24,8 +24,10 @@ import org.usvm.statistics.distances.InterprocDistanceCalculator
 import org.usvm.statistics.distances.MultiTargetDistanceCalculator
 import org.usvm.statistics.distances.ReachabilityKind
 import org.usvm.targets.UTarget
+import org.usvm.util.Predictor
 import org.usvm.util.RealTimeStopwatch
 import org.usvm.util.log2
+import org.usvm.utils.Game
 import kotlin.math.max
 import kotlin.random.Random
 import kotlin.time.Duration
@@ -107,9 +109,10 @@ private fun <Method, Statement, Target, State, Block> createPathSelector(
                 random
             )
 
-            PathSelectionStrategy.GNN -> createGnnPathSelector(
+            PathSelectionStrategy.AI -> createAIPathSelector(
                 requireNotNull(coverageStatisticsFactory()) { "Coverage statistics is required for GNN path selector" },
-                blockGraph
+                blockGraph,
+                options
             )
         }
     }
@@ -149,14 +152,27 @@ private fun <Method, Statement, Target, State, Block> createPathSelector(
 
             ParallelPathSelector(wrappedSelectors)
         }
+
+        PathSelectorCombinationStrategy.SEQUENTIAL -> {
+            val selector = SequentialPathSelector(selectors, options.stepsToStart)
+
+            val mergingSelector = createMergingPathSelector(initialStates, selector, options, cfgStatisticsFactory)
+            val resultSelector = mergingSelector.wrapIfRequired(options, loopStatisticFactory)
+
+            resultSelector.add(initialStates.toList())
+
+            resultSelector
+        }
     }
 
     return selector
 }
 
-fun <Method, Statement, State, Block> createGnnPathSelector(
+@Suppress("UNCHECKED_CAST")
+fun <Method, Statement, State, Block> createAIPathSelector(
     coverageStatistics: CoverageStatistics<Method, Statement, State>,
     blockGraph: BlockGraph<Method, Block, Statement>,
+    options: UMachineOptions
 ): UPathSelector<State> where State : UState<*, Method, Statement, *, *, State>,
                               Block : BasicBlock {
     coverageStatistics.addOnCoveredObserver { _, _, statement ->
@@ -165,7 +181,10 @@ fun <Method, Statement, State, Block> createGnnPathSelector(
 
     val isInCoverageZone = { block: Block -> blockGraph.methodOf(block) in coverageStatistics.coverageZone }
 
-    return GnnPathSelector(blockGraph, isInCoverageZone)
+    val predictor = options.oracle as? Predictor<Game<Block>>
+    checkNotNull(predictor)
+
+    return AIPathSelector(isInCoverageZone, blockGraph, predictor)
 }
 
 fun <Method, Statement, Target, State, Block> createPathSelector(

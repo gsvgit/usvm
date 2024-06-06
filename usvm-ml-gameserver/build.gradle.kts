@@ -25,15 +25,16 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.allWarningsAsErrors = false
 }
 
-tasks.named<JavaExec>("run") {
-    standardInput = System.`in`
-}
-
 tasks.test {
     useJUnitPlatform()
 }
 
 dependencies {
+    implementation(project(":usvm-jvm"))
+    implementation(project(":usvm-core"))
+    implementation("${Versions.jacodbPackage}:jacodb-api-jvm:${Versions.jacodb}")
+    implementation("${Versions.jacodbPackage}:jacodb-core:${Versions.jacodb}")
+
     implementation("io.ktor:ktor-server-core:${Versions.ktor_version}")
     implementation("io.ktor:ktor-server-netty:${Versions.ktor_version}")
     implementation("io.ktor:ktor-server-websockets:${Versions.ktor_version}")

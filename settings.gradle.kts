@@ -4,7 +4,7 @@ include("usvm-core")
 include("usvm-jvm")
 include("usvm-util")
 include("usvm-jvm-instrumentation")
-include("usvm-sample-language")
+//include("usvm-sample-language")
 include("usvm-ml-gameserver")
 
 pluginManagement {

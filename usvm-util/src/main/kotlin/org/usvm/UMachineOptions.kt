@@ -1,5 +1,6 @@
 package org.usvm
 
+import org.usvm.util.Predictor
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -95,9 +96,9 @@ enum class PathSelectionStrategy {
     TARGETED_CALL_STACK_LOCAL_RANDOM,
 
     /**
-     * Selects the next state based on a Graph Neural Network (GNN) model.
+     * Selects the next state based on prediction.
      */
-    GNN
+    AI
 }
 
 enum class PathSelectorCombinationStrategy {
@@ -109,7 +110,9 @@ enum class PathSelectorCombinationStrategy {
     /**
      * Multiple path selectors have independent state sets and are interleaved.
      */
-    PARALLEL
+    PARALLEL,
+
+    SEQUENTIAL
 }
 
 enum class PathSelectorFairnessStrategy {
@@ -264,4 +267,8 @@ data class UMachineOptions(
      * Limit loop iterations.
      * */
     val loopIterationLimit: Int? = null,
+
+    val stepsToStart: UInt = 0u,
+
+    val oracle: Predictor<*>? = null
 )
