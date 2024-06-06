@@ -5,7 +5,7 @@ include("usvm-jvm")
 include("usvm-ts")
 include("usvm-util")
 include("usvm-jvm-instrumentation")
-include("usvm-sample-language")
+//include("usvm-sample-language")
 include("usvm-dataflow")
 include("usvm-jvm-dataflow")
 

@@ -37,6 +37,7 @@ import org.usvm.statistics.distances.MultiTargetDistanceCalculator
 import org.usvm.statistics.distances.PlainCallGraphStatistics
 import org.usvm.stopstrategies.createStopStrategy
 import org.usvm.util.originalInst
+import kotlin.math.roundToInt
 
 val logger = object : KLogging() {}.logger
 
@@ -57,7 +58,7 @@ class JcMachine(
 
     private val cfgStatistics = CfgStatisticsImpl(applicationGraph)
 
-    fun analyze(methods: List<JcMethod>, targets: List<JcTarget> = emptyList()): List<JcState> {
+    fun analyze(methods: List<JcMethod>, targets: List<JcTarget> = emptyList()): Pair<List<JcState>, Int>  {
         logger.debug("{}.analyze({})", this, methods)
         val initialStates = mutableMapOf<JcMethod, JcState>()
         methods.forEach {
@@ -201,10 +202,13 @@ class JcMachine(
             stopStrategy = stopStrategy,
         )
 
-        return statesCollector.collectedStates
+        val percentageCoverage = coverageStatistics.getMethodCoverage(methods.single()).roundToInt()
+
+        return statesCollector.collectedStates to percentageCoverage
+
     }
 
-    fun analyze(method: JcMethod, targets: List<JcTarget> = emptyList()): List<JcState> =
+    fun analyze(method: JcMethod, targets: List<JcTarget> = emptyList()): Pair<List<JcState>, Int> =
         analyze(listOf(method), targets)
 
     /**

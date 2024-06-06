@@ -26,10 +26,7 @@ class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
 
     private fun Set<JcBlock>.blockOf(stmt: JcInst): JcBlock {
         // workaround stepping through instructions
-        val targetStmt = when (stmt) {
-            is JcMethodEntrypointInst, is JcConcreteMethodCallInst -> stmt.originalInst()
-            else -> stmt
-        }
+        val targetStmt = stmt.originalInst()
 
         return find { it.contains(targetStmt) }
             ?: throw IllegalArgumentException("$stmt does not belong to any block")
