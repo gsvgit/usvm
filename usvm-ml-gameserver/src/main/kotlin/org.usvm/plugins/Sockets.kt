@@ -5,6 +5,8 @@ import io.ktor.serialization.kotlinx.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.json.Json
 import org.usvm.gameserver.*
 import org.usvm.errors.AlreadyInGameError
@@ -38,11 +40,18 @@ fun Application.configureSockets() {
                                 true -> throw AlreadyInGameError()
                                 false -> {
                                     thisConnection.startGame {
-                                        val explorationResult = randomExplorer(
-                                            inputBody,
-                                            thisConnection::getStep
-                                        )
-                                        { outputMessageBody -> sendSerialized(outputMessageBody.toRawOutputMessage()) }
+                                        val explorationResult: GameOver = async(Dispatchers.Default) {
+                                            randomExplorer(
+                                                inputBody = inputBody,
+                                                getNextStep = { runBlocking { thisConnection.getStep() } },
+                                                sendOutputMessageBody = { outputMessageBody ->
+                                                    runBlocking {
+                                                        sendSerialized(
+                                                            outputMessageBody.toRawOutputMessage()
+                                                        )
+                                                    }
+                                                })
+                                        }.await()
                                         thisConnection.finishGame { sendSerialized(explorationResult.toRawOutputMessage()) }
                                     }
                                 }
@@ -54,6 +63,7 @@ fun Application.configureSockets() {
                 this@configureSockets.log.error("An error occurred during deserialization: ${e.localizedMessage}")
             } catch (e: HandledError) {
                 this@configureSockets.log.error(e.localizedMessage)
+            } catch (_: ClosedReceiveChannelException) {
             } finally {
                 this@configureSockets.log.info("Closing connection")
             }
