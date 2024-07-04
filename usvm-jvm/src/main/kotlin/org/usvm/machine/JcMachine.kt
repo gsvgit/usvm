@@ -98,6 +98,8 @@ class JcMachine(
         val timeStatistics = TimeStatistics<JcMethod, JcState>()
         val loopTracker = JcLoopTracker()
 
+        val stepsStatistics = StepsStatistics<JcMethod, JcState>()
+
         val pathSelector = createPathSelector(
             initialStates,
             options,
@@ -107,6 +109,7 @@ class JcMachine(
             { coverageStatistics },
             { transparentCfgStatistics },
             { callGraphStatistics },
+            { stepsStatistics },
             { loopTracker }
         )
 
@@ -119,8 +122,6 @@ class JcMachine(
                 StateCollectionStrategy.REACHED_TARGET -> TargetsReachedStatesCollector()
                 StateCollectionStrategy.ALL -> AllStatesCollector()
             }
-
-        val stepsStatistics = StepsStatistics<JcMethod, JcState>()
 
         val stopStrategy = createStopStrategy(
             options,
