@@ -1,0 +1,27 @@
+name: Build and Run Tests [gradle]
+
+on: [push, pull_request, workflow_dispatch]
+
+
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    runs-on: ubuntu-latest 
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Runs a single command using the runners shell
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: '21'
+          cache: "gradle"    
+
+      # Runs a set of commands using the runners shell
+      - name: Build and run tests
+        run: ./gradlew build --no-daemon
