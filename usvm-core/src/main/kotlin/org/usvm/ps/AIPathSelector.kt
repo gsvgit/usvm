@@ -10,7 +10,6 @@ import org.usvm.utils.StateWrapper
 
 
 class AIPathSelector<Statement, State, Block>(
-    private val isInCoverageZone: (Block) -> Boolean,
     private val blockGraph: BlockGraph<*, Block, Statement>,
     private val stepsStatistics: StepsStatistics<*, State>,
     private val predictor: Predictor<Game<Block>>,
@@ -25,9 +24,6 @@ Block : BasicBlock {
     private fun predict(): State {
         val wrappers = statesMap.values
         val vertices = blockGraph.blocks
-        vertices.forEach{
-            it.inCoverageZone = isInCoverageZone(it)
-        }
         val predictedId = predictor.predictState(Game(vertices, wrappers, blockGraph))
         val predictedState = statesMap.keys.find { it.id == predictedId }
 

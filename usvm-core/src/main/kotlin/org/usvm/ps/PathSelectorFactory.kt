@@ -179,17 +179,19 @@ fun <Method, Statement, State, Block> createAIPathSelector(
     options: UMachineOptions
 ): UPathSelector<State> where State : UState<*, Method, Statement, *, *, State>,
                               Block : BasicBlock {
-    coverageStatistics.addOnCoveredObserver { _, _, statement ->
-        blockGraph.blockOf(statement).coveredByTest = true
+    with(coverageStatistics) {
+        addOnCoveredObserver { _, _, statement ->
+            blockGraph.blockOf(statement).coveredByTest = true
+        }
+        addOnMethodAddedObserver { method ->
+            blockGraph.blocks.filter { blockGraph.methodOf(it) == method }.forEach { it.inCoverageZone = true }
+        }
     }
-
-    val isInCoverageZone = { block: Block -> blockGraph.methodOf(block) in coverageStatistics.coverageZone }
 
     val predictor = options.oracle as? Predictor<Game<Block>>
     checkNotNull(predictor)
 
     return AIPathSelector(
-        isInCoverageZone,
         blockGraph,
         stepsStatistics,
         predictor
