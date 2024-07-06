@@ -50,7 +50,7 @@ Block : BasicBlock {
             parent?.children?.remove(wrapper)
 
             state.pathNode += state.currentStatement
-            wrapper.updateBlock(totalSteps)
+            wrapper.update(totalSteps)
             wrapper.children.clear()
         }
     }
@@ -65,8 +65,7 @@ Block : BasicBlock {
                 state,
                 parentPathConditionSize,
                 parentHistory,
-                blockGraph,
-                totalSteps
+                blockGraph
             )
             //
             statesMap[state] = wrapper

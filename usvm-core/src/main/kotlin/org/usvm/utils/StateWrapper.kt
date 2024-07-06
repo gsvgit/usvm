@@ -11,25 +11,14 @@ data class StateHistoryElement(
 )
 
 class StateWrapper<Statement, State, Block>(
-    // TODO: too many parameters
     private val state: State,
     private val parentPathConditionSize: Int,
     private val parentHistory: MutableMap<Block, StateHistoryElement>,
     private val blockGraph: BlockGraph<*, Block, Statement>,
-    steps: Int
 ) where State : UState<*, *, Statement, *, *, State>, Block : BasicBlock {
     val children = mutableSetOf<StateWrapper<Statement, State, Block>>()
-    val history = parentHistory
+    val history = parentHistory.toMutableMap()
     val id = state.id
-
-    val position: Int
-        get() = currentBlock.id
-
-    val pathConditionSize: Int
-        get() = parentPathConditionSize + state.forkPoints.depth
-
-    val visitedAgainVertices: Int
-        get() = history.values.count { it.numOfVisits > 1 }
 
     val visitedNotCoveredVerticesInZone: Int
         get() = history.keys.count { !it.coveredByTest && it.inCoverageZone }
@@ -37,19 +26,24 @@ class StateWrapper<Statement, State, Block>(
     val visitedNotCoveredVerticesOutOfZone: Int
         get() = history.keys.count { !it.coveredByTest && !it.inCoverageZone }
 
-    val visitedStatement: Statement
-        get() = checkNotNull(state.pathNode.parent?.statement)
-
-    var stepWhenMovedLastTime = steps
-
-    val instructionsVisitedInCurrentBlock: Int
-        get() = blockGraph.statementsOf(currentBlock).indexOf(visitedStatement) + 1
-
-    val currentBlock: Block
-        get() = blockGraph.blockOf(visitedStatement)
+    var visitedStatement: Statement? = null
+    lateinit var currentBlock: Block
+    var position: Int = 0
+    var pathConditionSize: Int = 0
+    var visitedAgainVertices: Int = 0
+    var instructionsVisitedInCurrentBlock: Int = 0
+    var stepWhenMovedLastTime: Int = 0
 
     fun update(steps: Int) {
+        visitedStatement = checkNotNull(state.pathNode.parent?.statement)
+        currentBlock = blockGraph.blockOf(visitedStatement!!)
+
+        position = currentBlock.id
+        pathConditionSize = parentPathConditionSize + state.forkPoints.depth
+        visitedAgainVertices = history.values.count { it.numOfVisits > 1 }
+        instructionsVisitedInCurrentBlock = blockGraph.statementsOf(currentBlock).indexOf(visitedStatement) + 1
         stepWhenMovedLastTime = steps
+
         updateBlock(stepWhenMovedLastTime)
     }
 
@@ -67,6 +61,8 @@ class StateWrapper<Statement, State, Block>(
         }
     }
 
-    fun addChildren(wrappers: Collection<StateWrapper<Statement, State, Block>>) =
+    fun addChildren(wrappers: Collection<StateWrapper<Statement, State, Block>>) {
+        wrappers.forEach { it.update(stepWhenMovedLastTime) }
         children.addAll(wrappers)
+    }
 }
