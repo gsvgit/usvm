@@ -183,8 +183,14 @@ fun <Method, Statement, State, Block> createAIPathSelector(
         addOnCoveredObserver { _, _, statement ->
             blockGraph.blockOf(statement).coveredByTest = true
         }
+        fun addBlocksToCoverageZone(method: Method) {
+            val blocksOfMethod = blockGraph.blocks.filter { blockGraph.methodOf(it) == method }
+            blocksOfMethod.forEach { it.inCoverageZone = true }
+        }
+        // initial methods
+        coverageZone.forEach(::addBlocksToCoverageZone)
         addOnMethodAddedObserver { method ->
-            blockGraph.blocks.filter { blockGraph.methodOf(it) == method }.forEach { it.inCoverageZone = true }
+            addBlocksToCoverageZone(method)
         }
     }
 

@@ -63,6 +63,7 @@ class JcMachine(
         val initialStates = mutableMapOf<JcMethod, JcState>()
         methods.forEach {
             initialStates[it] = interpreter.getInitialState(it, targets)
+            blockGraph.addNewMethod(it)
         }
 
         val methodsToTrackCoverage =
