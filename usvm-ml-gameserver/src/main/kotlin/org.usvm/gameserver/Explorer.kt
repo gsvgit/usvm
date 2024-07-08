@@ -2,7 +2,6 @@
 
 package org.usvm.gameserver
 
-import kotlinx.coroutines.*
 import org.usvm.JavaMethodRunner
 import org.usvm.OracleImpl
 import org.usvm.statistics.BasicBlock
@@ -15,13 +14,10 @@ fun randomExplorer(
     val gameMap = inputBody.gameMap
 
     val predict = { gameState: GameState ->
-        val step = runBlocking {
-            val msg = ReadyForNextStep(gameState)
-            sendOutputMessageBody(msg)
-            val step = getNextStep()
-            sendOutputMessageBody(MoveReward(Reward(MoveRewardData(4u, 4u), 5u)))
-            step
-        }
+        val msg = ReadyForNextStep(gameState)
+        sendOutputMessageBody(msg)
+        val step = getNextStep()
+        sendOutputMessageBody(MoveReward(Reward(MoveRewardData(4u, 4u), 5u)))
         step.gameStep.stateId
     }
 

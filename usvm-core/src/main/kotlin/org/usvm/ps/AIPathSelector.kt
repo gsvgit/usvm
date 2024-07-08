@@ -3,28 +3,27 @@ import org.usvm.UPathSelector
 import org.usvm.UState
 import org.usvm.statistics.BasicBlock
 import org.usvm.statistics.BlockGraph
+import org.usvm.statistics.StepsStatistics
+import org.usvm.util.Predictor
 import org.usvm.utils.Game
 import org.usvm.utils.StateWrapper
-import org.usvm.util.Predictor
 
 
 class AIPathSelector<Statement, State, Block>(
-    private val isInCoverageZone: (Block) -> Boolean,
     private val blockGraph: BlockGraph<*, Block, Statement>,
+    private val stepsStatistics: StepsStatistics<*, State>,
     private val predictor: Predictor<Game<Block>>,
 ) : UPathSelector<State> where
 State : UState<*, *, Statement , *, *, State>,
 Block : BasicBlock {
     private val statesMap = mutableMapOf<State, StateWrapper<Statement, State, Block>>()
     private var lastPeekedState: State? = null
-    private var totalSteps = 0
+    private val totalSteps
+        get() = stepsStatistics.totalSteps.toInt()
 
     private fun predict(): State {
         val wrappers = statesMap.values
         val vertices = blockGraph.blocks
-        vertices.forEach{
-            it.inCoverageZone = isInCoverageZone(it)
-        }
         val predictedId = predictor.predictState(Game(vertices, wrappers, blockGraph))
         val predictedState = statesMap.keys.find { it.id == predictedId }
 
@@ -34,8 +33,6 @@ Block : BasicBlock {
     override fun isEmpty() = statesMap.isEmpty()
 
     override fun peek(): State {
-        totalSteps++
-
         if (statesMap.size == 1) {
             return statesMap.keys.single().also { lastPeekedState = it }
         }
@@ -53,7 +50,7 @@ Block : BasicBlock {
             parent?.children?.remove(wrapper)
 
             state.pathNode += state.currentStatement
-            wrapper.updateBlock(totalSteps)
+            wrapper.update(totalSteps)
             wrapper.children.clear()
         }
     }
@@ -68,8 +65,7 @@ Block : BasicBlock {
                 state,
                 parentPathConditionSize,
                 parentHistory,
-                blockGraph,
-                totalSteps
+                blockGraph
             )
             //
             statesMap[state] = wrapper

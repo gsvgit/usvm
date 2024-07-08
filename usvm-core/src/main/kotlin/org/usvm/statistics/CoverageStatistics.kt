@@ -19,6 +19,7 @@ class CoverageStatistics<Method, Statement, State : UState<*, Method, Statement,
 ) : UMachineObserver<State> {
 
     private val onStatementCoveredObservers: MutableSet<(State, Method, Statement) -> Unit> = ConcurrentHashMap.newKeySet()
+    private val onMethodAddedToCoverageZoneObservers: MutableSet<(Method) -> Unit> = ConcurrentHashMap.newKeySet()
 
     // Set is actually concurrent
     private val uncoveredStatements = HashMap<Method, MutableSet<Statement>>()
@@ -56,6 +57,7 @@ class CoverageStatistics<Method, Statement, State : UState<*, Method, Statement,
         uncoveredStatements[method] = methodStatements
         totalUncoveredStatements += methodStatements.size
         coveredStatements[method] = hashSetOf()
+        onMethodAddedToCoverageZoneObservers.forEach { it(method) }
     }
 
     private fun computeCoverage(covered: Int, uncovered: Int): Float {
@@ -117,6 +119,10 @@ class CoverageStatistics<Method, Statement, State : UState<*, Method, Statement,
      */
     fun addOnCoveredObserver(observer: (State, Method, Statement) -> Unit) {
         onStatementCoveredObservers.add(observer)
+    }
+
+    fun addOnMethodAddedObserver(observer: (Method) -> Unit) {
+        onMethodAddedToCoverageZoneObservers.add(observer)
     }
 
     // TODO: don't consider coverage of runtime exceptions states

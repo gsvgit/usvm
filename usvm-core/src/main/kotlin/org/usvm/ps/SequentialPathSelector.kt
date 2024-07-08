@@ -1,17 +1,20 @@
 package org.usvm.ps
 
 import org.usvm.UPathSelector
+import org.usvm.statistics.StepsStatistics
 
 class SequentialPathSelector<State>(
     private val selectors: List<UPathSelector<State>>,
-    private val stepsToSwitch: UInt
+    private val stepsToSwitch: UInt,
+    private val stepsStatistics: StepsStatistics<*, *>
 ): UPathSelector<State> {
     init {
         require(selectors.size >= 2) { "Cannot create sequential path selector from less than 2 selectors" }
     }
 
     private var currentSelector = selectors.first()
-    private var totalSteps = 0u
+    private val totalSteps
+        get() = stepsStatistics.totalSteps.toUInt()
 
     override fun isEmpty() = currentSelector.isEmpty() && selectors.all { it.isEmpty() }
 
@@ -20,7 +23,6 @@ class SequentialPathSelector<State>(
             selectors.removeFirst()
             currentSelector = selectors.first()
         }
-        totalSteps++
         return currentSelector.peek()
     }
 

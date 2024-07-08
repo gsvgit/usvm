@@ -1,7 +1,7 @@
 package org.usvm.statistics
 
 interface BlockGraph<Method, Block, Statement> {
-    val blocks: Set<Block>
+    val blocks: List<Block>
 
     fun predecessors(node: Block): Sequence<Block>
     fun successors(node: Block): Sequence<Block>
