@@ -20,7 +20,7 @@ class SequentialPathSelector<State>(
 
     override fun peek(): State {
         if (totalSteps == stepsToSwitch) {
-            selectors.removeFirst()
+            selectors.drop(1)
             currentSelector = selectors.first()
         }
         return currentSelector.peek()
