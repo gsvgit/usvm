@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("usvm.kotlin-conventions")
-    id("io.ktor.plugin") version Versions.ktor_version
-    kotlin("plugin.serialization") version Versions.kotlinVersion
+    id(Plugins.Ktor)
+    kotlin("plugin.serialization") version Versions.kotlin
     application
 }
 
@@ -32,17 +32,17 @@ tasks.test {
 dependencies {
     implementation(project(":usvm-jvm"))
     implementation(project(":usvm-core"))
-    implementation("${Versions.jacodbPackage}:jacodb-api-jvm:${Versions.jacodb}")
-    implementation("${Versions.jacodbPackage}:jacodb-core:${Versions.jacodb}")
+    implementation(Libs.jacodb_api_jvm)
+    implementation(Libs.jacodb_core)
 
-    implementation("io.ktor:ktor-server-core:${Versions.ktor_version}")
-    implementation("io.ktor:ktor-server-netty:${Versions.ktor_version}")
-    implementation("io.ktor:ktor-server-websockets:${Versions.ktor_version}")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor_version}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinxSerialization}")
+    implementation(Libs.ktor_server_core)
+    implementation(Libs.ktor_server_netty)
+    implementation(Libs.ktor_server_websockets)
+    implementation(Libs.ktor_serialization)
+    implementation(Libs.kotlinx_serialization_core)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-cli:${Versions.kotlinxCLI}")
-    implementation("org.slf4j:slf4j-simple:${Versions.samplesSl4j}")
+    implementation(Libs.kotlinx_cli)
+    implementation(Libs.slf4j_simple)
 
     testImplementation(kotlin("test"))
 }
