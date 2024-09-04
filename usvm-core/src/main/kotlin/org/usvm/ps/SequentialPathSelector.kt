@@ -12,16 +12,19 @@ class SequentialPathSelector<State>(
         require(selectors.size >= 2) { "Cannot create sequential path selector from less than 2 selectors" }
     }
 
-    private var currentSelector = selectors.first()
+    private var ptr = 0
+
+    private var currentSelector = selectors[ptr]
     private val totalSteps
         get() = stepsStatistics.totalSteps.toUInt()
 
     override fun isEmpty() = currentSelector.isEmpty() && selectors.all { it.isEmpty() }
 
     override fun peek(): State {
+        // currently only either 1 or 2 selectors are supported
         if (totalSteps == stepsToSwitch) {
-            selectors.drop(1)
-            currentSelector = selectors.first()
+            ptr = (ptr + 1) % selectors.size
+            currentSelector = selectors[ptr]
         }
         return currentSelector.peek()
     }
