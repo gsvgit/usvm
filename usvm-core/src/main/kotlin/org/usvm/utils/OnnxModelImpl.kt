@@ -11,13 +11,6 @@ import java.nio.FloatBuffer
 import java.nio.LongBuffer
 import java.nio.file.Path
 
-
-data class Game<Block: BasicBlock>(
-    val vertices: Collection<Block>,
-    val stateWrappers: Collection<StateWrapper<*, *, *>>,
-    val blockGraph: BlockGraph<*, Block, *>
-)
-
 class OnnxModelImpl<Block: BasicBlock>(
     pathToONNX: Path
 ): OnnxModel<Game<Block>> {
