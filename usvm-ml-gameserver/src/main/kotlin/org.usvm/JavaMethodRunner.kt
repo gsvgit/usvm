@@ -1,20 +1,19 @@
 package org.usvm
 
 import org.usvm.gameserver.GameMap
+import org.usvm.gameserver.Searcher.BFS
+import org.usvm.gameserver.Searcher.DFS
 import org.usvm.machine.JcMachine
+import org.usvm.machine.state.JcState
 import org.usvm.util.JacoDBContainer
+import org.usvm.util.Predictor
 import org.usvm.util.getJcMethodByName
+import org.usvm.util.loadClasspathFromJar
 import org.usvm.util.mapsKey
 import java.io.File
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import org.usvm.gameserver.Searcher.BFS
-import org.usvm.gameserver.Searcher.DFS
-import org.usvm.machine.state.JcState
-import org.usvm.util.Oracle
-import org.usvm.util.loadClasspathFromJar
 
-class JavaMethodRunner(gameMap: GameMap, oracle: Oracle<*>? = null) {
+class JavaMethodRunner(gameMap: GameMap, oracle: Predictor<*>? = null) {
     val jacodbCpKey: String
         get() = mapsKey
 
@@ -37,9 +36,7 @@ class JavaMethodRunner(gameMap: GameMap, oracle: Oracle<*>? = null) {
         pathSelectorCombinationStrategy = PathSelectorCombinationStrategy.SEQUENTIAL,
         coverageZone = CoverageZone.TRANSITIVE,
         exceptionsPropagation = true,
-        timeout = 60_000.milliseconds,
-        stepsFromLastCovered = 3500L,
-        solverTimeout = Duration.INFINITE,
+        timeout = Duration.INFINITE,
         typeOperationsTimeout = Duration.INFINITE,
 
         stepLimit = stepLimit.toULong(),

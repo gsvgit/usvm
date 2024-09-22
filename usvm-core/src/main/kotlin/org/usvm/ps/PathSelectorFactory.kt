@@ -158,10 +158,7 @@ private fun <Method, Statement, Target, State, Block> createPathSelector(
 
         PathSelectorCombinationStrategy.SEQUENTIAL -> {
             val selector = SequentialPathSelector(selectors, options.stepsToStart, requireNotNull(stepsStatisticsFactory()))
-
-            val mergingSelector = createMergingPathSelector(initialStates, selector, options, cfgStatisticsFactory)
-            val resultSelector = mergingSelector.wrapIfRequired(options, loopStatisticFactory)
-
+            val resultSelector = createMergingPathSelector(initialStates, selector, options, cfgStatisticsFactory)
             resultSelector.add(initialStates.toList())
 
             resultSelector

@@ -1,5 +1,7 @@
 package org.usvm.statistics
 
+import org.usvm.StateId
+
 interface BasicBlock {
     val id: Int
     var inCoverageZone: Boolean
@@ -9,4 +11,6 @@ interface BasicBlock {
     var touchedByState: Boolean
     val containsCall: Boolean
     val containsThrow: Boolean
+
+    val states: MutableList<StateId>
 }

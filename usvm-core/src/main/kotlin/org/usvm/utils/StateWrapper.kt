@@ -35,19 +35,25 @@ class StateWrapper<Statement, State, Block>(
     var stepWhenMovedLastTime: Int = 0
 
     fun update(steps: Int) {
+        val previousBlock = visitedStatement?.let { currentBlock }
         visitedStatement = checkNotNull(state.pathNode.parent?.statement)
         currentBlock = blockGraph.blockOf(visitedStatement!!)
+        if (previousBlock != currentBlock) {
+            previousBlock?.states?.remove(this@StateWrapper.id)
+            currentBlock.states.add(this@StateWrapper.id)
 
-        position = currentBlock.id
-        pathConditionSize = parentPathConditionSize + state.forkPoints.depth
+            position = currentBlock.id
+            pathConditionSize = parentPathConditionSize + state.forkPoints.depth
+            instructionsVisitedInCurrentBlock = 0
+        }
         visitedAgainVertices = history.values.count { it.numOfVisits > 1 }
-        instructionsVisitedInCurrentBlock = blockGraph.statementsOf(currentBlock).indexOf(visitedStatement) + 1
+        instructionsVisitedInCurrentBlock++
         stepWhenMovedLastTime = steps
 
         updateBlock(stepWhenMovedLastTime)
     }
 
-    fun updateBlock(steps: Int) {
+    private fun updateBlock(steps: Int) {
         history.getOrPut(currentBlock) { StateHistoryElement(position) }.apply {
             val statements = blockGraph.statementsOf(currentBlock)
             if (statements.first() == visitedStatement) {

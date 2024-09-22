@@ -3,6 +3,7 @@ package org.usvm.machine
 import org.jacodb.api.jvm.JcMethod
 import org.jacodb.api.jvm.cfg.JcInst
 import org.jacodb.api.jvm.cfg.JcInstRef
+import org.usvm.StateId
 import org.usvm.statistics.BasicBlock
 
 data class JcBlock(
@@ -32,4 +33,5 @@ data class JcBlock(
         return inst.index <= end.index && inst.index >= start.index
     }
 
+    override val states = mutableListOf<StateId>()
 }

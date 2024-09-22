@@ -13,6 +13,8 @@ class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
     private val methodToBlocks = mutableMapOf<JcMethod, List<JcBlock>>()
     override val blocks: List<JcBlock>
         get() = methodToBlocks.values.flatten()
+    override var newBlocks = mutableListOf<JcBlock>()
+        private set
 
     private val methodsCache = mutableMapOf<JcMethod, JcGraph>()
 
@@ -86,7 +88,7 @@ class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
 
     private fun cutBlockGraph(blockGraph: JcBlockGraph) {
         val starterBlocks = blockGraph.iterator()
-        val newBlocks = mutableListOf<JcBlock>()
+        newBlocks = mutableListOf()
         starterBlocks.forEach { block ->
             val stmts = blockGraph.instructions(block)
             val currentBlockStmts = mutableListOf<JcInst>()
