@@ -24,8 +24,9 @@ Block : BasicBlock {
     private val totalSteps
         get() = stepsStatistics.totalSteps.toInt()
 
-    private var touchedStates = mutableListOf<StateWrapper<Statement, State, Block>>()
-    private var touchedBlocks = mutableListOf<Block>()
+    // set is convenient since we don't have to worry about duplicates
+    private var touchedStates = mutableSetOf<StateWrapper<Statement, State, Block>>()
+    private var touchedBlocks = mutableSetOf<Block>()
     private var newBlocks = listOf<Block>()
 
     private fun predict(): State {
