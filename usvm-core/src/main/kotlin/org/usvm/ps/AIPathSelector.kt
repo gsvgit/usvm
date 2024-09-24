@@ -87,7 +87,11 @@ Block : BasicBlock {
         statesMap.remove(state)?.let { wrapper ->
             // remove parent edge
             val parent = statesMap.values.find { wrapper in it.children }
-            parent?.children?.remove(wrapper)
+            if (parent != null) {
+                parent.children.remove(wrapper)
+                // removing parent edge on client side
+                touchedStates.add(parent)
+            }
 
             state.pathNode += state.currentStatement
 
@@ -98,7 +102,6 @@ Block : BasicBlock {
                 touchedBlocks.addAll(wrapper.history.keys)
 
             touchedStates.remove(wrapper)
-
         }
     }
 
