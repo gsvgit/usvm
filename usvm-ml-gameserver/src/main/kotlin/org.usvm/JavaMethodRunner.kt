@@ -36,6 +36,7 @@ class JavaMethodRunner(gameMap: GameMap, oracle: Predictor<*>? = null) {
         pathSelectorCombinationStrategy = PathSelectorCombinationStrategy.SEQUENTIAL,
         coverageZone = CoverageZone.TRANSITIVE,
         exceptionsPropagation = true,
+        solverTimeout = Duration.INFINITE,
         timeout = Duration.INFINITE,
         typeOperationsTimeout = Duration.INFINITE,
 
