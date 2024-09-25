@@ -21,7 +21,7 @@ private fun StateHistoryElement.toStateHistoryElem(): StateHistoryElem {
     )
 }
 
-private fun <Block: BasicBlock> StateWrapper<*, *, Block>.toState(): State {
+private fun <Block : BasicBlock> StateWrapper<*, *, Block>.toState(): State {
     return State(
         id,
         position.toUInt(),
@@ -36,7 +36,7 @@ private fun <Block: BasicBlock> StateWrapper<*, *, Block>.toState(): State {
     )
 }
 
-private fun <Block: BasicBlock> Block.toGameMapVertex(states: Collection<StateWrapper<*, *, *>>): GameMapVertex {
+private fun <Block : BasicBlock> Block.toGameMapVertex(): GameMapVertex {
     return GameMapVertex(
         id.toUInt(),
         inCoverageZone,
@@ -46,15 +46,15 @@ private fun <Block: BasicBlock> Block.toGameMapVertex(states: Collection<StateWr
         touchedByState,
         containsCall,
         containsThrow,
+
+        // todo: is it really necessary?
         states
-            .filter { this.id == it.position }
-            .map { it.id }
     )
 }
 
-private fun <Block: BasicBlock> BlockGraph<*, Block, *>.toGameMapEdge(): List<GameMapEdge> {
+private fun <Block : BasicBlock> BlockGraph<*, Block, *>.toGameMapEdge(blocks: Collection<Block>): List<GameMapEdge> {
     return blocks.flatMap { block ->
-        successors(block).map { successor ->
+        val successorsEdges = successors(block).map { successor ->
             GameMapEdge(
                 vertexFrom = block.id.toUInt(),
                 vertexTo = successor.id.toUInt(),
@@ -62,7 +62,7 @@ private fun <Block: BasicBlock> BlockGraph<*, Block, *>.toGameMapEdge(): List<Ga
             )
         }
 
-        callees(block).map { callee ->
+        val calleesEdges = callees(block).map { callee ->
             GameMapEdge(
                 vertexFrom = block.id.toUInt(),
                 vertexTo = callee.id.toUInt(),
@@ -70,23 +70,25 @@ private fun <Block: BasicBlock> BlockGraph<*, Block, *>.toGameMapEdge(): List<Ga
             )
         }
 
-        returnOf(block).map { returnSite ->
+        val returnOfEdges = returnOf(block).map { returnSite ->
             GameMapEdge(
                 vertexFrom = block.id.toUInt(),
                 vertexTo = returnSite.id.toUInt(),
                 label = GameEdgeLabel(2)
             )
         }
+
+        successorsEdges + calleesEdges + returnOfEdges
     }
 }
 
-fun <Block: BasicBlock> createGameState(
+fun <Block : BasicBlock> createGameState(
     game: Game<Block>
-    ): GameState {
+): GameState {
     val (vertices, stateWrappers, blockGraph) = game
     return GameState(
-        graphVertices = vertices.map { it.toGameMapVertex(stateWrappers) },
+        graphVertices = vertices.map { it.toGameMapVertex() },
         states = stateWrappers.map { it.toState() },
-        map = blockGraph.toGameMapEdge()
+        map = blockGraph.toGameMapEdge(vertices)
     )
 }

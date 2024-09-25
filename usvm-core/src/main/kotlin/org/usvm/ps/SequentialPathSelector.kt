@@ -21,12 +21,14 @@ class SequentialPathSelector<State>(
     override fun isEmpty() = currentSelector.isEmpty() && selectors.all { it.isEmpty() }
 
     override fun peek(): State {
+        val peeked = currentSelector.peek()
+
         // currently only either 1 or 2 selectors are supported
         if (totalSteps == stepsToSwitch) {
             ptr = (ptr + 1) % selectors.size
             currentSelector = selectors[ptr]
         }
-        return currentSelector.peek()
+        return peeked
     }
 
     override fun update(state: State) {
