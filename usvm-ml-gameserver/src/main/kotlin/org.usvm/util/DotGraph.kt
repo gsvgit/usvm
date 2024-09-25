@@ -61,7 +61,7 @@ fun<Block: BasicBlock> Game<Block>.dotGraph(
         }
 
         // Call and return edges
-        groupedByMethod.values.flatten().forEach { block ->
+        vertices.forEach { block ->
             val blockId = block.id.toString()
             blockGraph.callees(block).forEach { callee ->
                 val calleeId = callee.id.toString()

@@ -18,13 +18,13 @@ class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
 
     private val methodsCache = mutableMapOf<JcMethod, JcGraph>()
 
-    private val predecessorMap = mutableMapOf<JcBlock, MutableList<JcBlock>>()
-    private val successorMap = mutableMapOf<JcBlock, MutableList<JcBlock>>()
-    private val calleesMap = mutableMapOf<JcBlock, MutableList<JcBlock>>()
-    private val callersMap = mutableMapOf<JcBlock, MutableList<JcBlock>>()
-    private val returnMap = mutableMapOf<JcBlock, MutableList<JcBlock>>()
-    private val catchersMap = mutableMapOf<JcBlock, MutableList<JcBlock>>()
-    private val throwersMap = mutableMapOf<JcBlock, MutableList<JcBlock>>()
+    private val predecessorMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
+    private val successorMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
+    private val calleesMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
+    private val callersMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
+    private val returnMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
+    private val catchersMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
+    private val throwersMap = mutableMapOf<JcBlock, MutableSet<JcBlock>>()
 
     private fun List<JcBlock>.blockOf(stmt: JcInst): JcBlock {
         // workaround stepping through instructions
@@ -32,21 +32,17 @@ class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
         val targetMethod = targetStmt.location.method
         val blocksToSearch = requireNotNull(methodToBlocks[targetMethod])
 
-        var left = 0
-        var right = blocksToSearch.size - 1
-
-        while (left <= right) {
-            val mid = left + (right - left) / 2
-            val block = blocksToSearch[mid]
-
-            val instructionIndex = targetStmt.location.index
+        val instructionIndex = targetStmt.location.index
+        val blockIndex = blocksToSearch.binarySearch { block ->
             when {
-                instructionIndex < block.start.index -> right = mid - 1
-                instructionIndex > block.end.index -> left = mid + 1
-                else -> return block
+                instructionIndex < block.start.index -> 1
+                instructionIndex > block.end.index -> -1
+                else -> 0
             }
         }
-        throw NoSuchElementException("$stmt does not belong to any block")
+
+        return blocksToSearch.getOrNull(blockIndex)
+            ?: throw NoSuchElementException("$stmt does not belong to any block")
     }
 
     fun addNewMethod(method: JcMethod) {
@@ -60,16 +56,20 @@ class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
     fun addNewMethodCall(callSite: JcInst, returnSite: JcInst, entryPoint: JcInst) {
         val method = entryPoint.location.method
         addNewMethod(method)
-        calleesMap.getOrPut(blockOf(callSite), ::mutableListOf) += blockOf(entryPoint)
-        callersMap.getOrPut(blockOf(entryPoint), ::mutableListOf) += blockOf(callSite)
+        calleesMap.getOrPut(blockOf(callSite), ::mutableSetOf) += blockOf(entryPoint)
+        callersMap.getOrPut(blockOf(entryPoint), ::mutableSetOf) += blockOf(callSite)
         methodsCache[method]?.let {
             it.exits.forEach {
-                returnMap.getOrPut(blockOf(it), ::mutableListOf) += blockOf(returnSite)
+                returnMap.getOrPut(blockOf(it), ::mutableSetOf) += blockOf(returnSite)
             }
         }
     }
 
-    private fun createAndAddBlock(blockGraph: JcBlockGraph, stmts: MutableList<JcInst>, newBlocks: MutableList<JcBlock>) {
+    private fun createAndAddBlock(
+        blockGraph: JcBlockGraph,
+        stmts: MutableList<JcInst>,
+        newBlocks: MutableList<JcBlock>
+    ) {
         val block = with(blockGraph.jcGraph) {
             val start = stmts.first()
             val end = stmts.last()
@@ -106,15 +106,15 @@ class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
         methodToBlocks[graph.method] = newBlocks
 
         newBlocks.forEach { block ->
-            predecessorMap.getOrPut(block, ::mutableListOf) += graph.predecessors(block.start)
+            predecessorMap.getOrPut(block, ::mutableSetOf) += graph.predecessors(block.start)
                 .map { newBlocks.blockOf(it) }
-            successorMap.getOrPut(block, ::mutableListOf) += graph.successors(block.end)
+            successorMap.getOrPut(block, ::mutableSetOf) += graph.successors(block.end)
                 .map { newBlocks.blockOf(it) }
-            catchersMap.getOrPut(block, ::mutableListOf) += graph.catchers(block.start)
+            catchersMap.getOrPut(block, ::mutableSetOf) += graph.catchers(block.start)
                 .map { blocks.blockOf(it) }
                 .also {
                     for (catcher in it) {
-                        throwersMap.getOrPut(catcher, ::mutableListOf) += block
+                        throwersMap.getOrPut(catcher, ::mutableSetOf) += block
                     }
                 }
         }
