@@ -120,20 +120,20 @@ class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
         }
     }
 
-    override fun predecessors(node: JcBlock): Sequence<JcBlock> =
-        predecessorMap.getOrDefault(node, emptySet()).asSequence()
+    override fun predecessors(block: JcBlock): Sequence<JcBlock> =
+        predecessorMap.getOrDefault(block, emptySet()).asSequence()
 
-    override fun successors(node: JcBlock): Sequence<JcBlock> =
-        successorMap.getOrDefault(node, emptySet()).asSequence()
+    override fun successors(block: JcBlock): Sequence<JcBlock> =
+        successorMap.getOrDefault(block, emptySet()).asSequence()
 
-    override fun callees(node: JcBlock): Sequence<JcBlock> =
-        calleesMap.getOrDefault(node, emptySet()).asSequence()
+    override fun callees(block: JcBlock): Sequence<JcBlock> =
+        calleesMap.getOrDefault(block, emptySet()).asSequence()
 
-    override fun callers(node: JcBlock): Sequence<JcBlock> =
-        calleesMap.getOrDefault(node, emptySet()).asSequence()
+    override fun callers(block: JcBlock): Sequence<JcBlock> =
+        calleesMap.getOrDefault(block, emptySet()).asSequence()
 
-    override fun returnOf(node: JcBlock): Sequence<JcBlock> =
-        returnMap.getOrDefault(node, emptySet()).asSequence()
+    override fun returnOf(block: JcBlock): Sequence<JcBlock> =
+        returnMap.getOrDefault(block, emptySet()).asSequence()
 
     override fun methodOf(block: JcBlock): JcMethod =
         block.method
@@ -141,6 +141,6 @@ class JcBlockGraph : BlockGraph<JcMethod, JcBlock, JcInst> {
     override fun blockOf(inst: JcInst): JcBlock =
         blocks.blockOf(inst)
 
-    override fun statementsOf(node: JcBlock): Sequence<JcInst> =
-        node.stmts.asSequence()
+    override fun statementsOf(block: JcBlock): Sequence<JcInst> =
+        block.stmts.asSequence()
 }
