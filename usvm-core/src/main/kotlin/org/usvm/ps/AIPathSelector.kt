@@ -93,11 +93,20 @@ Block : BasicBlock {
                 touchedStates.add(parent)
             }
 
+            /**
+             * Required for proper handling of visited statement
+             * in [StateWrapper.update]
+             */
             state.pathNode += state.currentStatement
-
             wrapper.update(totalSteps)
+
             wrapper.children.clear()
             wrapper.currentBlock.states.remove(wrapper.id)
+
+            /**
+             * If state [isSat], some blocks may have been covered by
+             * [org.usvm.statistics.CoverageStatistics.onStateTerminated]
+             */
             if (state.isSat())
                 touchedBlocks.addAll(wrapper.history.keys)
 
@@ -117,7 +126,6 @@ Block : BasicBlock {
                 parentHistory,
                 blockGraph
             )
-            //
             statesMap[state] = wrapper
             wrapper
         }
@@ -129,6 +137,7 @@ Block : BasicBlock {
         val wrapper = statesMap[state]
         requireNotNull(wrapper)
         wrapper.update(totalSteps)
+        // adding current block after we've made a step
         touchedBlocks.add(wrapper.currentBlock)
     }
 }

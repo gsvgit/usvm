@@ -46,8 +46,6 @@ private fun <Block : BasicBlock> Block.toGameMapVertex(): GameMapVertex {
         touchedByState,
         containsCall,
         containsThrow,
-
-        // todo: is it really necessary?
         states
     )
 }

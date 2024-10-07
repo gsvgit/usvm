@@ -3,6 +3,7 @@ package org.usvm.utils
 import org.usvm.UState
 import org.usvm.statistics.BasicBlock
 import org.usvm.statistics.BlockGraph
+import kotlin.properties.Delegates
 
 data class StateHistoryElement(
     val blockId: Int,
@@ -22,18 +23,20 @@ class StateWrapper<Statement, State, Block>(
 
     private var visitedStatement: Statement? = null
     lateinit var currentBlock: Block
-    var position: Int = -1
-    var pathConditionSize: Int = -1
-    var visitedAgainVertices: Int = -1
-    var visitedNotCoveredVerticesInZone: Int = -1
-    var visitedNotCoveredVerticesOutOfZone: Int = -1
-    var instructionsVisitedInCurrentBlock: Int = -1
-    var stepWhenMovedLastTime: Int = -1
+    var position by Delegates.notNull<Int>()
+    var pathConditionSize by Delegates.notNull<Int>()
+    var visitedAgainVertices by Delegates.notNull<Int>()
+    var visitedNotCoveredVerticesInZone by Delegates.notNull<Int>()
+    var visitedNotCoveredVerticesOutOfZone by Delegates.notNull<Int>()
+    var instructionsVisitedInCurrentBlock by Delegates.notNull<Int>()
+    var stepWhenMovedLastTime by Delegates.notNull<Int>()
 
     fun update(steps: Int) {
         val previousBlock = visitedStatement?.let { currentBlock }
-        visitedStatement = checkNotNull(state.pathNode.parent?.statement)
-        currentBlock = blockGraph.blockOf(visitedStatement!!)
+        // getting parent statement because pathNode is pointing to
+        // next statement (to step on)
+        visitedStatement = state.pathNode.parent?.statement
+        currentBlock = blockGraph.blockOf(checkNotNull(visitedStatement))
         if (previousBlock != currentBlock) {
             previousBlock?.states?.remove(this@StateWrapper.id)
             currentBlock.states.add(this@StateWrapper.id)
@@ -45,8 +48,8 @@ class StateWrapper<Statement, State, Block>(
         instructionsVisitedInCurrentBlock++
         stepWhenMovedLastTime = steps
 
-        updateBlock(stepWhenMovedLastTime)
         updateVertexCounts()
+        updateBlock(stepWhenMovedLastTime)
     }
 
     private fun updateVertexCounts() {

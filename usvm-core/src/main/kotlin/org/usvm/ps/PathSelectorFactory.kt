@@ -112,8 +112,8 @@ private fun <Method, Statement, Target, State, Block> createPathSelector(
             )
 
             PathSelectionStrategy.AI -> createAIPathSelector(
-                requireNotNull(coverageStatisticsFactory()) { "Coverage statistics is required for GNN path selector" },
-                requireNotNull(stepsStatisticsFactory()) { "Steps statistics is required for GNN path selector" },
+                requireNotNull(coverageStatisticsFactory()) { "Coverage statistics is required for AI path selector" },
+                requireNotNull(stepsStatisticsFactory()) { "Steps statistics is required for AI path selector" },
                 blockGraph,
                 options
             )
@@ -192,7 +192,7 @@ fun <Method, Statement, State, Block> createAIPathSelector(
     }
 
     val predictor = options.oracle as? Predictor<Game<Block>>
-    checkNotNull(predictor)
+    requireNotNull(predictor) { "Oracle is required for AI path selector" }
 
     return AIPathSelector(
         blockGraph,

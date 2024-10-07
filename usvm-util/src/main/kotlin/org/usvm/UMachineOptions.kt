@@ -112,6 +112,9 @@ enum class PathSelectorCombinationStrategy {
      */
     PARALLEL,
 
+    /**
+     * Two path selectors have a common state set and are used one after another.
+     */
     SEQUENTIAL
 }
 
@@ -268,7 +271,14 @@ data class UMachineOptions(
      * */
     val loopIterationLimit: Int? = null,
 
+    /**
+     * Limit for [PathSelectorCombinationStrategy.SEQUENTIAL] combinator when the switch
+     * from one path selector to another occurs.
+     */
     val stepsToStart: UInt = 0u,
 
+    /**
+     * Predictor for AI path selector.
+     */
     val oracle: Predictor<*>? = null
 )
