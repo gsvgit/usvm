@@ -58,7 +58,7 @@ class JcMachine(
 
     private val cfgStatistics = CfgStatisticsImpl(applicationGraph)
 
-    fun analyze(methods: List<JcMethod>, targets: List<JcTarget> = emptyList()): Pair<List<JcState>, Int>  {
+    fun analyze(methods: List<JcMethod>, targets: List<JcTarget> = emptyList()): Pair<List<JcState>, Float> {
         logger.debug("{}.analyze({})", this, methods)
         val initialStates = mutableMapOf<JcMethod, JcState>()
         methods.forEach {
@@ -204,13 +204,13 @@ class JcMachine(
             stopStrategy = stopStrategy,
         )
 
-        val percentageCoverage = coverageStatistics.getMethodCoverage(methods.single()).roundToInt()
+        val percentageCoverage = coverageStatistics.getMethodCoverage(methods.single())
 
         return statesCollector.collectedStates to percentageCoverage
 
     }
 
-    fun analyze(method: JcMethod, targets: List<JcTarget> = emptyList()): Pair<List<JcState>, Int> =
+    fun analyze(method: JcMethod, targets: List<JcTarget> = emptyList()): Pair<List<JcState>, Float> =
         analyze(listOf(method), targets)
 
     /**

@@ -5,6 +5,7 @@ package org.usvm.gameserver
 import org.usvm.JavaMethodRunner
 import org.usvm.OracleImpl
 import org.usvm.statistics.BasicBlock
+import kotlin.math.floor
 
 fun randomExplorer(
     inputBody: Start,
@@ -29,7 +30,7 @@ fun randomExplorer(
     val tests = results.size - errors
 
     return GameOver(
-        percentageCoverage.toUByte(),
+        floor(percentageCoverage).toUInt(),
         test = tests.toUInt(),
         error = errors.toUInt()
     )

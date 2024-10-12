@@ -61,7 +61,7 @@ sealed class OutputMessageBody
 
 @Serializable
 data class GameOver(
-    @SerialName("ActualCoverage") val percent: UByte,
+    @SerialName("ActualCoverage") val percent: UInt,
     @SerialName("TestsCount") val test: UInt,
     @SerialName("ErrorsCount") val error: UInt
 ) : OutputMessageBody()
