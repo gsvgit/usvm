@@ -13,12 +13,18 @@ class StepsStatistics<Method, State : UState<*, Method, *, *, *, State>> : UMach
     var totalSteps = 0UL
         private set
 
+    var lastPeekedState: State? = null
+
     private val methodSteps = mutableMapOf<Method, ULong>()
 
     /**
      * Returns number of steps machine made during [method] exploration.
      */
     fun getMethodSteps(method: Method) = methodSteps.getOrDefault(method, 0UL)
+
+    override fun onStatePeeked(state: State) {
+        lastPeekedState = state
+    }
 
     override fun onState(parent: State, forks: Sequence<State>) {
         totalSteps++

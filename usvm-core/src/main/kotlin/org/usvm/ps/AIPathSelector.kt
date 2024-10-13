@@ -20,7 +20,8 @@ class AIPathSelector<Statement, State, Block>(
 State : UState<*, *, Statement, *, *, State>,
 Block : BasicBlock {
     private val statesMap = mutableMapOf<State, StateWrapper<Statement, State, Block>>()
-    private var lastPeekedState: State? = null
+    private val lastPeekedState: State?
+        get() = stepsStatistics.lastPeekedState
     private val totalSteps
         get() = stepsStatistics.totalSteps.toInt()
 
@@ -28,6 +29,8 @@ Block : BasicBlock {
     private var touchedStates = mutableSetOf<StateWrapper<Statement, State, Block>>()
     private var touchedBlocks = mutableSetOf<Block>()
     private var newBlocks = listOf<Block>()
+
+    private var firstSend = true
 
     private fun predict(): State {
         val wrappers = statesMap.values
@@ -46,9 +49,10 @@ Block : BasicBlock {
         val game = when (predictor) {
             is OnnxModel<Game<Block>> -> Game(vertices, wrappers, blockGraph)
             is Oracle<Game<Block>> -> {
-                // if we played with default searcher before
+                // if we played with default searcher before,
                 // client has no information about the game
-                if (lastPeekedState == null) {
+                if (firstSend) {
+                    firstSend = false
                     Game(vertices, wrappers, blockGraph)
                 } else {
                     if (blockGraph.newBlocks != newBlocks) {
@@ -71,12 +75,11 @@ Block : BasicBlock {
 
     override fun peek(): State {
         if (totalSteps == 0) {
-            return statesMap.keys.single().also { lastPeekedState = it }
+            return statesMap.keys.single()
         }
 
         val predictedState = predict()
-        lastPeekedState = predictedState
-        val wrapper = checkNotNull(statesMap[lastPeekedState])
+        val wrapper = checkNotNull(statesMap[predictedState])
         touchedBlocks.add(wrapper.currentBlock)
         touchedStates.add(wrapper)
 

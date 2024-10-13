@@ -34,7 +34,7 @@ class JavaMethodRunner(gameMap: GameMap, oracle: Predictor<*>? = null) {
     val options: UMachineOptions = UMachineOptions(
         pathSelectionStrategies = listOf(defaultSearcher, PathSelectionStrategy.AI),
         pathSelectorCombinationStrategy = PathSelectorCombinationStrategy.SEQUENTIAL,
-        coverageZone = CoverageZone.TRANSITIVE,
+        coverageZone = CoverageZone.METHOD,
         exceptionsPropagation = true,
         solverTimeout = Duration.INFINITE,
         timeout = Duration.INFINITE,
@@ -45,7 +45,7 @@ class JavaMethodRunner(gameMap: GameMap, oracle: Predictor<*>? = null) {
         oracle = oracle
     )
 
-    fun cover(className: String, methodName: String): Pair<List<JcState>, Int> {
+    fun cover(className: String, methodName: String): Pair<List<JcState>, Float> {
         val jcMethod = cp.getJcMethodByName(className, methodName)
 
         val (states, percentageCoverage) = JcMachine(cp, options, interpreterObserver = null).use { machine ->
