@@ -43,6 +43,7 @@ dependencies {
 
     implementation(Libs.kotlinx_cli)
     implementation(Libs.slf4j_simple)
+    implementation(Libs.logback)
 
     implementation("io.github.rchowell:dotlin:1.0.2")
     testImplementation(kotlin("test"))
