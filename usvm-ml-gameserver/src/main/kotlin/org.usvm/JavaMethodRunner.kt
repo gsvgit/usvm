@@ -39,6 +39,7 @@ class JavaMethodRunner(gameMap: GameMap, oracle: Predictor<*>? = null) {
         solverTimeout = Duration.INFINITE,
         timeout = Duration.INFINITE,
         typeOperationsTimeout = Duration.INFINITE,
+        useSolverForForks = false,
 
         stepLimit = stepLimit.toULong(),
         stepsToStart = gameMap.stepsToStart,
