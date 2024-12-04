@@ -1,9 +1,10 @@
-@file:Suppress("UNUSED_PARAMETER", "UNUSED_VARIABLE")
-
 package org.usvm.gameserver
 
-import org.usvm.JavaMethodRunner
+import org.usvm.runner.JavaMethodRunner
 import org.usvm.OracleImpl
+import org.usvm.PathSelectionStrategy
+import org.usvm.UMachineOptions
+import org.usvm.runner.defaultOptions
 import org.usvm.statistics.BasicBlock
 import kotlin.math.floor
 
@@ -22,10 +23,10 @@ fun randomExplorer(
         step.gameStep.stateId
     }
 
-    val (className, methodName) = extractClassAndMethod(gameMap.nameOfObjectToCover)
-    val runner = JavaMethodRunner(gameMap, OracleImpl<BasicBlock>(predict))
+    val options = cloneDefaultOptions(gameMap, predict)
+    val runner = JavaMethodRunner(options, gameMap.assemblyFullName)
 
-    val (results, percentageCoverage) = runner.cover(className, methodName)
+    val (results, percentageCoverage) = runner.cover(gameMap.nameOfObjectToCover)
     val errors = results.count { it.isExceptional }
     val tests = results.size - errors
 
@@ -36,10 +37,16 @@ fun randomExplorer(
     )
 }
 
-private fun extractClassAndMethod(fullName: String): Pair<String, String> {
-    val parts = fullName.split('.')
-    val className = parts.dropLast(1).joinToString(".")
-    val methodName = parts.last()
-
-    return Pair(className, methodName)
+private fun cloneDefaultOptions(gameMap: GameMap, predict: (GameState) -> UInt): UMachineOptions {
+    val defaultSearcher = when (gameMap.defaultSearcher) {
+        Searcher.BFS -> PathSelectionStrategy.BFS
+        Searcher.DFS -> PathSelectionStrategy.DFS
+    }
+    val stepLimit = (gameMap.stepsToStart + gameMap.stepsToStart).toULong()
+    return defaultOptions.copy(
+        pathSelectionStrategies = listOf(defaultSearcher, PathSelectionStrategy.AI),
+        stepLimit = stepLimit,
+        stepsToStart = gameMap.stepsToStart,
+        oracle = OracleImpl<BasicBlock>(predict)
+    )
 }

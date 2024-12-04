@@ -4,7 +4,7 @@ import org.usvm.gameserver.GameState
 import org.usvm.statistics.BasicBlock
 import org.usvm.util.Oracle
 import org.usvm.utils.Game
-import org.usvm.util.createGameState
+import org.usvm.gameserver.serialization.createGameState
 
 class OracleImpl<Block: BasicBlock>(
     val predict: (GameState) -> UInt
