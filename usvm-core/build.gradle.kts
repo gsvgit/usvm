@@ -13,6 +13,7 @@ dependencies {
     testImplementation(Libs.ksmt_yices)
 
     implementation(Libs.onnxruntime)
+    implementation(Libs.onnxruntime_gpu)
 }
 
 publishing {

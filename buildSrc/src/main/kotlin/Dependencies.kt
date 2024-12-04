@@ -241,6 +241,12 @@ object Libs {
         version = Versions.onnxruntime
     )
 
+    val onnxruntime_gpu = dep(
+        group = "com.microsoft.onnxruntime",
+        name = "onnxruntime_gpu",
+        version = Versions.onnxruntime
+    )
+
     val ktor_server_core = dep(
         group = "io.ktor",
         name = "ktor-server-core",

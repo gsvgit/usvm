@@ -4,18 +4,31 @@ import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import org.usvm.StateId
+import org.usvm.logger
 import org.usvm.statistics.BasicBlock
 import org.usvm.statistics.BlockGraph
 import org.usvm.util.OnnxModel
 import java.nio.FloatBuffer
 import java.nio.LongBuffer
-import java.nio.file.Path
+
+enum class Mode {
+    CPU,
+    GPU
+}
 
 class OnnxModelImpl<Block: BasicBlock>(
-    pathToONNX: Path
+    pathToONNX: String,
+    mode: Mode
 ): OnnxModel<Game<Block>> {
     private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
-    private val session: OrtSession = env.createSession(pathToONNX.toString())
+    private val sessionOptions: OrtSession.SessionOptions = OrtSession.SessionOptions().apply {
+        if (mode == Mode.GPU) {
+            addCUDA()
+        } else {
+            logger.info("Using CPU execution provider.")
+        }
+    }
+    private val session: OrtSession = env.createSession(pathToONNX, sessionOptions)
 
     override fun predictState(game: Game<Block>): UInt {
         val stateIds = mutableMapOf<StateId, Int>()

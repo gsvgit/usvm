@@ -1,4 +1,4 @@
-package org.usvm.util
+package org.usvm.gameserver.serialization
 
 import org.usvm.gameserver.GameEdgeLabel
 import org.usvm.gameserver.GameMapEdge

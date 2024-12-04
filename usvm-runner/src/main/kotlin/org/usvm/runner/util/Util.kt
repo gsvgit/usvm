@@ -1,4 +1,4 @@
-package org.usvm.util
+package org.usvm.runner.util
 
 import org.jacodb.api.jvm.JcClasspath
 import org.jacodb.api.jvm.JcTypedMethod

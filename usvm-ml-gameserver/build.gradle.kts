@@ -32,6 +32,7 @@ tasks.test {
 dependencies {
     implementation(project(":usvm-jvm"))
     implementation(project(":usvm-core"))
+    implementation(project(":usvm-runner"))
     implementation(Libs.jacodb_api_jvm)
     implementation(Libs.jacodb_core)
 
@@ -44,6 +45,5 @@ dependencies {
     implementation(Libs.kotlinx_cli)
     implementation(Libs.slf4j_simple)
 
-    implementation("io.github.rchowell:dotlin:1.0.2")
     testImplementation(kotlin("test"))
 }
